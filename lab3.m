@@ -83,30 +83,30 @@ fprintf('-------Finished testing of ur5BodyJacobian()---------\n')
 %% Test cases: Manipulability
 
 fprintf('-------Beginning testing of manipulability()---------\n')
-% theta_3 from -pi/2 tp pi/2 
+% theta_5 from -0.2 t0 0.2
 
 % joint angles
 q1 = pi/3;
-q2 = 0;
-q3_init = -pi/2;
-q3_goal = pi/2;
+q2 = pi;
+q3 = pi/7;
 q4 = pi/4;
-q5 = pi/2;
-q6 = pi/2;
+q5_init = -0.2;
+q5_goal = 0.2;
+q6 = pi/7;
 
 % change theta3 from -pi/2 to pi/2
-q3s = q3_init:0.05:q3_goal;
+q5s = q3_init:0.01:q3_goal;
 
 % value of different kinds of manipulability
-sigmamin = zeros(length(q3s),1);
-detjac =  zeros(length(q3s),1);
-invcond = zeros(length(q3s),1);
+sigmamin = zeros(length(q5s),1);
+detjac =  zeros(length(q5s),1);
+invcond = zeros(length(q5s),1);
 
 i_mani = 0;
-for q3 = q3s
+for q5 = q5s
     
     i_mani = i_mani + 1;
-    q_test_manipu = [q1, q2, q3, q4, q5, q6]';
+    q_test_manipu = [q1, q2, q3, q4, q5, q6];
     JB = ur5BodyJacobian(q_test_manipu);
     
     % comp
@@ -118,24 +118,24 @@ end
 
 % plot figure
 figure
-plot(q3s, sigmamin)
+plot(q5s, sigmamin)
 hold on
-plot(q3s, detjac)
+plot(q5s, detjac)
 hold on
-plot(q3s, invcond)
+plot(q5s, invcond)
 legend('sigmamin', 'detjac', 'invcond')
-title('Manipulability for theta3 = [-pi/2, pi/2]')
+title('Manipulability for theta5 = [-0.2, 0.2]')
 
 fprintf('-------Finished testing of manipulability()---------\n')
-%% Test cases: getXi
+%% Test cases: getXi 
 fprintf('-------Beginning testing of getXi()--------------\n')
 
 % ***** One important point is that w must be an unit vector in order to
 % use TwistExp
-% Case 1
+% Case 1 pure rotation
 
 % compute homogenuous transformation matrix
-xi = [2;0;0;1;0;0];
+xi = [0;0;0;1;0;0];
 theta = pi/2;
 g = TwistExp(xi,theta); 
 fprintf('Homogenuous transformation function\n')
@@ -152,18 +152,15 @@ g_test  = expm(xi_hat);
 fprintf('Error between Resulted Transformation matrix and Original matrix\n')
 disp(g_test-g)
 
-%% getXi: Case 2
+%% getXi: Case 2 pure transaltion 
 
-% compute homogenuous transformation matrix
-xi = [1;1;1;0.5;0.5;sqrt(0.5)];
-theta = pi/4;
-g = TwistExp(xi,theta);
+% compute homogenuous transformation matrix for pure transaltion
+g = eye(4);
+g(1:3,4) = [1;-2;3];
 fprintf('Homogenuous transformation function\n')
 disp(g);
 % getXi
 xi_test = getXi(g);
-fprintf('Original twist\n')
-disp(xi*theta);
 fprintf('Return twist\n')
 disp(xi_test);
 % compute error between original maxtirx and expm(xi)
@@ -195,8 +192,8 @@ g_test  = expm(xi_hat);
 fprintf('Error between Resulted Transformation matrix and Original matrix\n')
 disp(g_test-g)
 
-fprintf('-------Finished testing of manipulability()---------\n')
-%% Test cases: control 1st - no singular
+fprintf('-------Finished testing of getXi()---------\n')
+%% Test cases: control 1 - no singularity
 % Please run the test cases section by section!!
 
 %% Initilize the pose of ur5 to a non-singular configuration
@@ -215,7 +212,7 @@ K = 0.5;
 dis = ur5RRcontrol(g_control_goal1, K, ur5);
 disp('Positional error: ' + string(dis)+ 'CM');
 
-%% Test cases: control 2ed - goal pose will be near singularity
+%% Test cases: control 2 - goal pose will be near singularity
 
 %% Initilize the pose of ur5 to a non-singular configuration
 
