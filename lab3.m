@@ -86,7 +86,7 @@ q5_goal = 0.2;
 q6 = pi/7;
 
 % change theta3 from -pi/2 to pi/2
-q5s = q3_init:0.01:q3_goal;
+q5s = q5_init:0.01:q5_goal;
 
 % value of different kinds of manipulability
 sigmamin = zeros(length(q5s),1);
