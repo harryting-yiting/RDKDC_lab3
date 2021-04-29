@@ -24,35 +24,23 @@ move_frame('tool0','ee_link', g_ee_tool0);
 % Part 3 a) Forward Kinematic Map Verification
 
 fprintf('\n\n-------Beginning testing of ur5FwdKin()-----------\n')
-%% ur5FwdKin: case 1
+%% ur5FwdKin: 4 cases
+
 q1 = [0, pi/4, -pi/2, 0, pi/2, 0]';
-g1 = ur5FwdKin(q1);
-fwdKinToolFrame = tf_frame('base_link','fwdKinToolFrame',g1);
-ur5.move_joints(q1, 7);
-pause(8)
-std1 =  ur5.get_current_transformation('base_link','ee_link');
-err1 = norm(std1- g1);
-fprintf('\terror between current position and forward map is %d\n', err1);
+q2 = [pi/2, -pi/3, pi/3, pi/3, pi/2, pi/2]';
+q3 = [0, 0, 0, 0, 0, 0]';
+q4 = [0 , pi/6 , pi/3 , -pi/4 ,pi/5 ,pi/6]';
+q = [q1,q2,q3,q4];
 
-%% ur5FwdKin: case 2
-q1 = [pi/2, -pi/3, pi/3, pi/3, pi/2, pi/2]';
-g1 = ur5FwdKin(q1);
-fwdKinToolFrame = tf_frame('base_link','fwdKinToolFrame',g1);
-ur5.move_joints(q1, 7);
-pause(8)
-std1 =  ur5.get_current_transformation('base_link','ee_link');
-err1 = norm(std1- g1);
-fprintf('\terror between current position and forward map is %d\n', err1);
-
-%% ur5FwdKin: case 3
-q1 = [0, 0, 0, 0, 0, 0]';
-g1 = ur5FwdKin(q1);
-fwdKinToolFrame = tf_frame('base_link','fwdKinToolFrame',g1);
-ur5.move_joints(q1, 7);
-pause(8)
-std1 =  ur5.get_current_transformation('base_link','ee_link');
-err1 = norm(std1- g1);
-fprintf('\terror between current position and forward map is %d\n', err1);
+for i = 1:4
+    g = ur5FwdKin(q(:,i));
+    fwdKinToolFrame = tf_frame('base_link','fwdKinToolFrame',g)
+    ur5.move_joints(q(:,i), 7);
+    pause(15)
+    std =  ur5.get_current_transformation('base_link','ee_link')
+    err1 = norm(std- g);
+    fprintf('\terror between current position and forward map is %d\n', err1);
+end
 
 
 fprintf('-------Finished testing of ur5FwdKin() ------------\n\n')
@@ -60,7 +48,7 @@ fprintf('-------Finished testing of ur5FwdKin() ------------\n\n')
 %% Test cases: ur5BodyJacobian
 fprintf('-------Beginning testing of ur5BodyJacobian()---------\n')
 
-for i = 1:10
+for j = 1:10
     q = [rand(1,6)*2*pi - pi]';
     g = ur5FwdKin(q);
     JB = ur5BodyJacobian(q);
@@ -74,11 +62,14 @@ for i = 1:10
         Japprox(:,i) = DESKEW4(xi_);
 
     end
-
+    %fprintf("case %d:\n",j)
+    %JB
+    %approx
     err = norm(JB - Japprox);
     fprintf('\terror between Jacobian and approximation is %d\n', err);
     
 end
+
 fprintf('-------Finished testing of ur5BodyJacobian()---------\n')
 %% Test cases: Manipulability
 
